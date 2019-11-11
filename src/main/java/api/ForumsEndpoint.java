@@ -4,7 +4,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import api.models.Forum;
 
 @Path("/forums")
 public class ForumsEndpoint {
@@ -12,9 +11,11 @@ public class ForumsEndpoint {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response sayHtmlHello() {
 		
+		return Response.status(200).entity("Ah ooga!").build();
+		
 		//Crashes. why does it crash
-		Forum forum = new Forum();
-		forum.setIcon("tests");
-		return Response.status(200).entity(forum).build();
+		//Forum forum = new Forum();
+		//forum.setIcon("tests");
+		//return Response.status(200).entity(forum).build();
 	}
 }
