@@ -3,12 +3,18 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import api.models.Forum;
 
-@Path("/Forums")
+@Path("/forums")
 public class ForumsEndpoint {
 	@GET
-	@Produces(MediaType.TEXT_HTML)
-	public String sayHtmlHello() {
-	return "Hello from Jersey";
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response sayHtmlHello() {
+		
+		//Crashes. why does it crash
+		Forum forum = new Forum();
+		forum.setIcon("tests");
+		return Response.status(200).entity(forum).build();
 	}
 }
