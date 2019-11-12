@@ -1,10 +1,12 @@
 package api;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,7 +26,7 @@ public class ThreadsEndpoint {
 		ArrayList<Thread> threads = mapToResponse(response);
 		return Response.status(200).entity(threads).build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
@@ -34,7 +36,7 @@ public class ThreadsEndpoint {
 		ArrayList<Thread> threads = mapToResponse(response);
 		return Response.status(200).entity(threads.get(0)).build();
 	}
-	
+
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -43,16 +45,23 @@ public class ThreadsEndpoint {
 		System.out.println(sql);
 		new DatabaseConnector().changeData(sql);
 	}
-	
+
+	@OPTIONS
+	public Response getOptions() {
+		return Response.ok().header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, OPTIONS")
+				.header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+	}
+
 	private String mapObjectToSQL(Thread thread) {
 		String sql = "INSERT INTO thread values ('";
 		sql += thread.getId() + "', ";
 		sql += "'" + thread.getOwner() + "')";
 		return sql;
 	}
-	
+
 	private ArrayList<Thread> mapToResponse(ResultSet response) {
-		
+
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		try {
 			while (response.next()) {
