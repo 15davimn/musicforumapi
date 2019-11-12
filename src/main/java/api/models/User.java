@@ -4,19 +4,19 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;;
 
-@Entity
-@Table(name="user")
+
 public class User {
-	@Id
-	private String username;
+	
+	private String id;
 	private String password;
 	private String icon;
 	private String tag;
-	public String getUsername() {
-		return username;
+	
+	public String getId() {
+		return id;
 	}
-	public void setUsername(String username) {
-		this.username = username;
+	public void setId(String username) {
+		this.id = username;
 	}
 	public String getPassword() {
 		return password;

@@ -1,20 +1,17 @@
 package api;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.TimeZone;
+import java.util.ArrayList;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
 
 import api.models.User;
 
@@ -28,57 +25,54 @@ public class UsersEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser() {
-		accessDatabase();
-		System.out.println("An example for updating a Row from Mysql Database!");
-		Connection con = null;
-		String driver = "com.mysql.jdbc.Driver";
-		String db = "c2375b11test";
-		String url = "jdbc:mysql://" + rhost + ":" + lport + "/";
-		String dbUser = "c2375b11";
-		String dbPasswd = "c2375bU!";
+		ResultSet response = new DatabaseConnector().runSQL("Select * From user");
+		ArrayList<User> users = mapToResponse(response);
+		return Response.status(200).entity(users).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{id}")
+	public Response getUser(@PathParam("id") String id) {
+		String sql = "Select * From user where id = '" + id + "'";
+		ResultSet response = new DatabaseConnector().runSQL(sql);
+		ArrayList<User> users = mapToResponse(response);
+		return Response.status(200).entity(users.get(0)).build();
+	}
+	
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void createUser(User user) {
+		String sql = mapObjectToSQL(user);
+		System.out.println(sql);
+		new DatabaseConnector().changeData(sql);
+	}
+	
+	private String mapObjectToSQL(User user) {
+		String sql = "INSERT INTO user values ('";
+		sql += user.getId() + "', ";
+		sql += "'" + user.getPassword() + "', ";
+		sql += "'" + user.getIcon() + "', ";
+		sql += "'" + user.getTag() + "')";
+		return sql;
+	}
+	
+	private ArrayList<User> mapToResponse(ResultSet response) {
+		
+		ArrayList<User> users = new ArrayList<User>();
 		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
-			try {
-				Statement st = con.createStatement();
-				String sql = "UPDATE user " + "SET tag = 'ripon.wasim@smile.com' WHERE username='bob'";
-
-				int update = st.executeUpdate(sql);
-				if (update >= 1) {
-					System.out.println("Row is updated.");
-				} else {
-					System.out.println("Row is not updated.");
-				}
-			} catch (SQLException s) {
-				System.out.println("SQL statement is not executed!");
+			while (response.next()) {
+				User user = new User();
+				user.setId(response.getString("id"));
+				user.setPassword(response.getString("password"));
+				user.setIcon(response.getString("icon"));
+				user.setTag(response.getString("tag"));
+				users.add(user);
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
-
-	}
-
-	public String accessDatabase() {
-		String username = "c2375b11";
-		String password = "Madison#44";
-		String host = "ps11.pstcc.edu";
-		int port = 22;
-		try {
-			JSch jsch = new JSch();
-			Session session = jsch.getSession(username, host, port);
-			lport = 4321;
-			rhost = "localhost";
-			rport = 3306;
-			session.setPassword(password);
-			session.setConfig("StrictHostKeyChecking", "no");
-			System.out.println("Establishing Connection...");
-			session.connect();
-			int assinged_port = session.setPortForwardingL(lport, rhost, rport);
-			System.out.println("localhost:" + assinged_port + " -> " + rhost + ":" + rport);
-		} catch (Exception e) {
-			System.err.print(e);
-		}
-		return "";
+		return users;
 	}
 }
