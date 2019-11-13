@@ -55,7 +55,7 @@ public class PostsEndpoint {
 	private String mapObjectToSQL(Post post) {
 		String sql = "INSERT INTO `post` (`thread`, `content`, `user`) VALUES (";
 		sql += "'" + post.getThread()+ "', ";
-		sql += "'" + post.getConent() + "', ";
+		sql += "'" + post.getContent() + "', ";
 		sql += "'" + post.getUser() + "')";
 		return sql;
 	}
@@ -75,7 +75,7 @@ public class PostsEndpoint {
 				Post post = new Post();
 				post.setId(response.getInt("id"));
 				post.setThread(response.getString("thread"));
-				post.setConent(response.getString("content"));
+				post.setContent(response.getString("content"));
 				post.setUser(response.getString("user"));
 				posts.add(post);
 			}
