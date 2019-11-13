@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -23,7 +24,10 @@ public class PostsEndpoint {
 	public Response getPost() {
 		ResultSet response = new DatabaseConnector().runSQL("Select * From post");
 		ArrayList<Post> posts = mapToResponse(response);
-		return Response.status(200).entity(posts).build();
+		return Response.status(200).entity(posts)
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
 	@GET
@@ -33,7 +37,10 @@ public class PostsEndpoint {
 		String sql = "Select * From post where id = '" + id + "'";
 		ResultSet response = new DatabaseConnector().runSQL(sql);
 		ArrayList<Post> posts = mapToResponse(response);
-		return Response.status(200).entity(posts.get(0)).build();
+		return Response.status(200).entity(posts.get(0))
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
 	@PUT
@@ -51,6 +58,13 @@ public class PostsEndpoint {
 		sql += "'" + post.getConent() + "', ";
 		sql += "'" + post.getUser() + "')";
 		return sql;
+	}
+	
+	@OPTIONS
+	public Response preFlightCheck() {
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
 	private ArrayList<Post> mapToResponse(ResultSet response) {

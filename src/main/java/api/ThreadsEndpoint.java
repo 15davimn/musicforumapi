@@ -1,5 +1,4 @@
 package api;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,19 +13,36 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import api.models.Thread;
 
 @Path("/threads")
 public class ThreadsEndpoint {
+	
+	ObjectMapper objectMapper;
+	
+	public ThreadsEndpoint() {
+		objectMapper = new ObjectMapper();
+		//objectMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+		//objectMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getThread() {
+	public Response getThread() throws JsonProcessingException {
 		ResultSet response = new DatabaseConnector().runSQL("Select * From thread");
 		ArrayList<Thread> threads = mapToResponse(response);
-		return Response.status(200).entity(threads).build();
+		String jsonResponse = objectMapper.writer().withRootName("threads").writeValueAsString(threads);
+		return Response.status(200).entity(threads)
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
-
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
@@ -34,9 +50,12 @@ public class ThreadsEndpoint {
 		String sql = "Select * From thread where id = '" + id + "'";
 		ResultSet response = new DatabaseConnector().runSQL(sql);
 		ArrayList<Thread> threads = mapToResponse(response);
-		return Response.status(200).entity(threads.get(0)).build();
+		return Response.status(200).entity(threads.get(0))
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
-
+	
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -45,23 +64,23 @@ public class ThreadsEndpoint {
 		System.out.println(sql);
 		new DatabaseConnector().changeData(sql);
 	}
-
+	
 	@OPTIONS
-	public Response getOptions() {
-		return Response.ok().header("Access-Control-Allow-Origin", "*")
-				.header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, OPTIONS")
-				.header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+	public Response preFlightCheck() {
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
-
+	
 	private String mapObjectToSQL(Thread thread) {
 		String sql = "INSERT INTO thread values ('";
 		sql += thread.getId() + "', ";
 		sql += "'" + thread.getOwner() + "')";
 		return sql;
 	}
-
+	
 	private ArrayList<Thread> mapToResponse(ResultSet response) {
-
+		
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		try {
 			while (response.next()) {

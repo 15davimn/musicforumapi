@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -23,11 +24,21 @@ public class UsersEndpoint {
 	static int rport;
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_HTML)
 	public Response getUser() {
 		ResultSet response = new DatabaseConnector().runSQL("Select * From user");
 		ArrayList<User> users = mapToResponse(response);
-		return Response.status(200).entity(users).build();
+		return Response.status(200).entity(users)
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+	}
+
+	@OPTIONS
+	public Response preFlightCheck() {
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
 	@GET
@@ -37,7 +48,10 @@ public class UsersEndpoint {
 		String sql = "Select * From user where id = '" + id + "'";
 		ResultSet response = new DatabaseConnector().runSQL(sql);
 		ArrayList<User> users = mapToResponse(response);
-		return Response.status(200).entity(users.get(0)).build();
+		return Response.status(200).entity(users.get(0))
+				.header("Access-Control-Allow-Origin", "*")
+				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
 	@PUT
