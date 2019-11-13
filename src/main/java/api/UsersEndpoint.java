@@ -41,6 +41,14 @@ public class UsersEndpoint {
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
+	@OPTIONS
+	@Path("{id}")
+	public Response preFlightCheckOnFind() {
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+	}
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")

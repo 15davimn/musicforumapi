@@ -14,32 +14,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import api.models.Thread;
 
 @Path("/threads")
 public class ThreadsEndpoint {
-	
-	ObjectMapper objectMapper;
-	
-	public ThreadsEndpoint() {
-		objectMapper = new ObjectMapper();
-		//objectMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-		//objectMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-	}
+
+
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getThread() throws JsonProcessingException {
 		ResultSet response = new DatabaseConnector().runSQL("Select * From thread");
 		ArrayList<Thread> threads = mapToResponse(response);
-		String jsonResponse = objectMapper.writer().withRootName("threads").writeValueAsString(threads);
 		return Response.status(200).entity(threads)
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+	}
+	
+	@OPTIONS
+	@Path("{id}")
+	public Response preFlightCheckOnFind() {
+		return Response.status(200)
+				.header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
