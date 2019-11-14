@@ -24,7 +24,7 @@ public class UsersEndpoint {
 	static int rport;
 
 	@GET
-	@Produces(MediaType.TEXT_HTML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser() {
 		ResultSet response = new DatabaseConnector().runSQL("Select * From user");
 		ArrayList<User> users = mapToResponse(response);
@@ -62,7 +62,7 @@ public class UsersEndpoint {
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
 	}
 	
-	@PUT
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void createUser(User user) {
