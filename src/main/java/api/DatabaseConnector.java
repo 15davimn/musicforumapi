@@ -35,7 +35,10 @@ public class DatabaseConnector {
 		} catch (Exception e) {
 			return -1;
 		} finally {
-			con.close();
+			try {
+				con.close();
+			} catch (SQLException e) {
+			}
 		}
 
 	}
@@ -57,8 +60,11 @@ public class DatabaseConnector {
 			con.close();
 			return toReturn;
 		} catch (Exception e) {
+			try {
+				con.close();
+			} catch (SQLException e1) {
+			}
 			return null;
-			con.close();
 		}
 
 	}
