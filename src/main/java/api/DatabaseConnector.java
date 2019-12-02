@@ -29,9 +29,13 @@ public class DatabaseConnector {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
 				Statement st = con.createStatement();
-				return st.executeUpdate(sql);
+			int toReturn = st.executeUpdate(sql);
+			con.close();
+			return toReturn;
 		} catch (Exception e) {
 			return -1;
+		} finally {
+			con.close();
 		}
 
 	}
@@ -49,9 +53,12 @@ public class DatabaseConnector {
 			Class.forName(driver);
 			con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
 				Statement st = con.createStatement();
-				return st.executeQuery(sql);
+				ResultSet toReturn = st.executeQuery(sql);
+			con.close();
+			return toReturn;
 		} catch (Exception e) {
 			return null;
+			con.close();
 		}
 
 	}
