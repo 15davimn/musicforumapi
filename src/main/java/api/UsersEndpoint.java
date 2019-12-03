@@ -26,12 +26,15 @@ public class UsersEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUser() {
-		ResultSet response = new DatabaseConnector().runSQL("Select * From user");
+		DatabaseConnector con = new DatabaseConnector();
+		ResultSet response = con.runSQL("Select * From user");
 		ArrayList<User> users = mapToResponse(response);
-		return Response.status(200).entity(users)
+		Response toReturn = Response.status(200).entity(users)
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+		con.close();
+		return toReturn;
 	}
 
 	@OPTIONS
@@ -54,7 +57,8 @@ public class UsersEndpoint {
 	@Path("{id}")
 	public Response getUser(@PathParam("id") String id) {
 		String sql = "Select * From user where id = '" + id + "'";
-		ResultSet response = new DatabaseConnector().runSQL(sql);
+		DatabaseConnector con = new DatabaseConnector();
+		ResultSet response = con.runSQL(sql);
 		ArrayList<User> users = mapToResponse(response);
 		return Response.status(200).entity(users.get(0))
 				.header("Access-Control-Allow-Origin", "*")
@@ -68,7 +72,9 @@ public class UsersEndpoint {
 	public void createUser(User user) {
 		String sql = mapObjectToSQL(user);
 		System.out.println(sql);
-		new DatabaseConnector().changeData(sql);
+		DatabaseConnector con = new DatabaseConnector();
+		con.changeData(sql);
+		con.close();
 	}
 	
 	private String mapObjectToSQL(User user) {

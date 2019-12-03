@@ -25,12 +25,16 @@ public class ThreadsEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getThread() throws JsonProcessingException {
-		ResultSet response = new DatabaseConnector().runSQL("Select * From thread");
+		DatabaseConnector con = new DatabaseConnector();
+		ResultSet response = con.runSQL("Select * From thread");
 		ArrayList<Thread> threads = mapToResponse(response);
-		return Response.status(200).entity(threads)
+		Response toReturn = Response.status(200).entity(threads)
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+		con.close();
+		return toReturn;
+		
 	}
 	
 	@OPTIONS
@@ -46,12 +50,15 @@ public class ThreadsEndpoint {
 	@Path("{id}")
 	public Response getThread(@PathParam("id") String id) {
 		String sql = "Select * From thread where id = '" + id + "'";
-		ResultSet response = new DatabaseConnector().runSQL(sql);
+		DatabaseConnector con = new DatabaseConnector();
+		ResultSet response = con.runSQL(sql);
 		ArrayList<Thread> threads = mapToResponse(response);
-		return Response.status(200).entity(threads.get(0))
+		Response toReturn = Response.status(200).entity(threads.get(0))
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+		con.close();
+		return toReturn;
 	}
 	
 	@POST
@@ -60,7 +67,9 @@ public class ThreadsEndpoint {
 	public void createThread(Thread thread) {
 		String sql = mapObjectToSQL(thread);
 		System.out.println(sql);
-		new DatabaseConnector().changeData(sql);
+		DatabaseConnector con = new DatabaseConnector();
+		con.changeData(sql);
+		con.close();
 	}
 	
 	@OPTIONS

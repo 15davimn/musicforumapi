@@ -15,11 +15,10 @@ public class DatabaseConnector {
 	static int lport;
 	static String rhost;
 	static int rport;
+	Connection con;
 	
 	public int changeData(String sql) {
 		accessDatabase();
-		System.out.println("An example for updating a Row from Mysql Database!");
-		Connection con = null;
 		String driver = "com.mysql.jdbc.Driver";
 		String db = "c2375b11test";
 		String url = "jdbc:mysql://" + rhost + ":" + lport + "/";
@@ -30,15 +29,9 @@ public class DatabaseConnector {
 			con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
 				Statement st = con.createStatement();
 			int toReturn = st.executeUpdate(sql);
-			con.close();
 			return toReturn;
 		} catch (Exception e) {
 			return -1;
-		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) {
-			}
 		}
 
 	}
@@ -46,27 +39,33 @@ public class DatabaseConnector {
 	public ResultSet runSQL(String sql) {
 		accessDatabase();
 		System.out.println("An example for updating a Row from Mysql Database!");
-		Connection con = null;
+		con = null;
 		String driver = "com.mysql.jdbc.Driver";
 		String db = "c2375b11test";
 		String url = "jdbc:mysql://" + rhost + ":" + lport + "/";
 		String dbUser = "c2375b11";
 		String dbPasswd = "c2375bU!";
-		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
-				Statement st = con.createStatement();
-				ResultSet toReturn = st.executeQuery(sql);
-			con.close();
-			return toReturn;
-		} catch (Exception e) {
+		ResultSet toReturn = null;
 			try {
-				con.close();
-			} catch (SQLException e1) {
+				Class.forName(driver);
+				con = DriverManager.getConnection(url + db, dbUser, dbPasswd);
+				Statement st = con.createStatement();
+				toReturn = st.executeQuery(sql);
+			return toReturn;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			return null;
-		}
+			return toReturn;
 
+	}
+	
+	public void close() {
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String accessDatabase() {

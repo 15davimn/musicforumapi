@@ -22,12 +22,15 @@ public class PostsEndpoint {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPost() {
-		ResultSet response = new DatabaseConnector().runSQL("Select * From post");
+		DatabaseConnector con = new DatabaseConnector();
+		ResultSet response = con.runSQL("Select * From post");
 		ArrayList<Post> posts = mapToResponse(response);
-		return Response.status(200).entity(posts)
+		Response toReturn = Response.status(200).entity(posts)
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+		con.close();
+		return toReturn;
 	}
 	
 	@GET
@@ -35,12 +38,15 @@ public class PostsEndpoint {
 	@Path("{id}")
 	public Response getPost(@PathParam("id") String id) {
 		String sql = "Select * From post where id = '" + id + "'";
+		DatabaseConnector con = new DatabaseConnector();
 		ResultSet response = new DatabaseConnector().runSQL(sql);
 		ArrayList<Post> posts = mapToResponse(response);
-		return Response.status(200).entity(posts.get(0))
+		Response toReturn = Response.status(200).entity(posts.get(0))
 				.header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
 				.header("Access-Control-Allow-Headers", "origin, application/vnd.api+json, application/json, content-type, accept, authorization").build();
+		con.close();
+		return toReturn;
 	}
 	
 	@POST
@@ -49,7 +55,9 @@ public class PostsEndpoint {
 	public void createPost(Post post) {
 		String sql = mapObjectToSQL(post);
 		System.out.println(sql);
-		new DatabaseConnector().changeData(sql);
+		DatabaseConnector con = new DatabaseConnector();
+		con.changeData(sql);
+		con.close();
 	}
 	
 	private String mapObjectToSQL(Post post) {
